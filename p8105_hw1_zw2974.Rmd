@@ -2,7 +2,7 @@
 title: "p8105_hw1_zw2974"
 author: "Zihan Wu"
 date: "9/14/2023"
-output: html_document
+output: github_document
 ---
 # Problem 1
 ```{r setup, include=FALSE}
