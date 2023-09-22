@@ -1,0 +1,114 @@
+---
+title: "p8105_hw1_zw2974"
+author: "Zihan Wu"
+date: "9/14/2023"
+output: html_document
+---
+# Problem 1
+```{r setup, include=FALSE}
+# Load the library and dataset
+library(tidyverse)
+library(moderndive)
+library(ggplot2)
+data("early_january_weather")
+```
+### Description of important variables and values in the dataset:
+`origin`: Weather station. Named `origin` to facilitate merging with `nycflights13::flights` data. The distinct weather stations included are `r paste(unique(early_january_weather$origin), collapse=", ")`.
+
+`year`, `month`, `day`, `hour`: Time of recording. Data spans from `r min(early_january_weather$day)` to `r max(early_january_weather$day)` in January `r unique(early_january_weather$year)`.
+
+`temp`, `dewp`: Temperature and dewpoint in F. The average temperature for the month is approximately `r round(mean(early_january_weather$temp, na.rm = TRUE), 2)`°F.
+
+`humid`: Relative humidity. The avgerage humidity for this period is around `r round(mean(early_january_weather$humid, na.rm = TRUE), 2)`%.
+
+`wind_dir`, `wind_speed`, `wind_gust`: Wind direction (in degrees), speed and gust speed (in mph). AVG wind direction : `r round(mean(early_january_weather$wind_dir, na.rm = TRUE), 2)`
+
+`precip`: Precipitation, in inches. AVG precipitation: `r mean(early_january_weather$precip, na.rm = TRUE)`
+
+`pressure`: Sea level pressure in millibars. AVG pressure: `r mean(early_january_weather$pressure, na.rm = TRUE)`
+
+`visib`: Visibility in miles. AVG visibility: `r mean(early_january_weather$visib, na.rm = TRUE)`
+
+`time_hour`: Date and hour of the recording as a POSIXct date. AVG time hour: `r mean(early_january_weather$time_hour, na.rm = TRUE)`
+
+### Size of dataset:
+Consists of `r nrow(early_january_weather)` rows and `r ncol(early_january_weather)` columns
+
+### Mean temperature:
+The average temperature for the month is approximately `r round(mean(early_january_weather$temp, na.rm = TRUE), 2)`°F.
+
+### Scatterplot:
+
+```{r echo=FALSE}
+plot1 <- ggplot(early_january_weather, aes(x = time_hour, y = temp, color = humid)) +
+  geom_point() +
+  labs(title = "Temperature vs. Time with Humidity Coloring",
+       x = "Time Hour",
+       y = "Temperature (°F)",
+       color = "Relative Humidity")
+ggsave("scatterplot_temp_time.pdf", plot = plot1)
+plot1
+```
+
+### Patterns description:
+The scatterplot shows a general increase in temperature from morning to mid-afternoon, followed by a decrease during the evening. There seems to be a higher concentration of points (indicating higher humidity) during the early morning, which might be associated with dew or morning mist. The evening temperatures, while cooler, don't seem to show a strong association with humidity. There are a few outliers on days where the temperature is unexpectedly high or low, which might be worth further investigation. The temperature has fluctuations while the general trend is going up until around Jan.15. The humidity is generally higher after Jan.7.
+
+# Problem 2
+
+### Data frame creation:
+
+```{r echo=FALSE}
+set.seed(1)
+samp_nor = rnorm(10)
+samp_log = samp_nor > 0
+samp_char = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j")
+samp_factor = factor(sample(c("level1", "level2", "level3"), 10, replace = TRUE))
+
+df = tibble(
+  nor = samp_nor,
+  log = samp_log,
+  char = samp_char,
+  factor = samp_factor
+)
+df
+```
+
+### When try to directly calculate the mean:
+```{r}
+mean(df)
+```
+
+The warning shows some variables in the data frame can't be directly calculated
+
+### Calculable variables:
+```{r}
+mean_normal <- mean(df %>% pull(nor))
+mean_logical <- mean(df %>% pull(log), na.rm = TRUE)
+```
+
+The mean value of the sample from normal distribution is `r mean_normal`
+
+The mean value of the logical vector  is `r mean_logical`
+
+### For the following tow variables, the mean fuction would return "NA"
+
+```{r}
+mean_character <- mean(df %>% pull(char)) 
+mean_factor <- mean(df %>% pull(factor))
+```
+
+### To convert variables to numeric
+Use `as.numeric`
+```
+numeric_logical <- as.numeric(df$log)
+numeric_character <- as.numeric(df$char)
+numeric_factor <- as.numeric(df$factor)
+```
+For the logical variables, it would converted to 0 and 1 corresponding to `T` and `F`
+
+For the character variables, `NA` would be incurred as a replacement of all the characters
+
+For the factor variables, the levels of factors would convert to numeric value 1, 2 and 3
+
+In that case, character wouldn't convert to the numeric variable which explain the warning produced when using `mean` function.
+
